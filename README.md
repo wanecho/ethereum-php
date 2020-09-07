@@ -1,5 +1,6 @@
 # ethereum-php
 ethereum eth web3 php keysotre bip44 infura etherscan proxy api
+基于nanqi/ethereum-php二次修改
 
 # 可能遇到的问题
 
@@ -15,3 +16,4 @@ ethereum eth web3 php keysotre bip44 infura etherscan proxy api
 
 1. 下载https://curl.haxx.se/ca/cacert.pem
 2. 修改php.ini：curl.cainfo=/usr/local/curl/cacert.pem
+   
