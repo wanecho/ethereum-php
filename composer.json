@@ -22,13 +22,13 @@
         "ext-gmp": "*",
         "ext-openssl": "*",
         "ext-json": "*",
-        "web3p/ethereum-tx": "^0.4.1",
+        "web3p/ethereum-tx": "~0.3.0",
         "furqansiddiqui/bip39-mnemonic-php": "^0.1.2",
         "guzzlehttp/guzzle": "^7.0",
         "ext-bcmath": "*",
-        "nanqi/minter-php-bip-44": "^1.0",
+        "nanqi/minter-php-bip-44": "~1.0.1",
         "league/event": "^2.2",
-        "simplito/elliptic-php": "^1.0.7"
+        "simplito/elliptic-php": "~1.0.3"
     },
     "require-dev": {
         "mockery/mockery": "^1.0",
