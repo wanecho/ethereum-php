@@ -28,7 +28,7 @@ class ERC20 extends Eth {
         $formatMethod = Formatter::toMethodFormat($method);
         $formatAddress = Formatter::toAddressFormat($this->contractAddress);
         $params['data'] = "0x{$formatMethod}{$formatAddress}";
-        $result = $this->proxyApi->send('eth_call', [$params,"latest"]);
+        $result = $this->proxyApi->ethCall($params);
         $name =  trim(Utils::hexToBin($result));
         if (!is_string($name)) {
             throw new InvalidArgumentException('Failed to retrieve ERC20 token name');
@@ -43,7 +43,7 @@ class ERC20 extends Eth {
         $formatMethod = Formatter::toMethodFormat($method);
         $formatAddress = Formatter::toAddressFormat($this->contractAddress);
         $params['data'] = "0x{$formatMethod}{$formatAddress}";
-        $result = $this->proxyApi->send('eth_call', [$params,"latest"]);
+        $result = $this->proxyApi->ethCall($params);
         $symbol = trim(Utils::hexToBin($result)) ?? null;
         if (!is_string($symbol)) {
             throw new InvalidArgumentException('Failed to retrieve ERC20 token symbol');
@@ -58,7 +58,7 @@ class ERC20 extends Eth {
         $formatMethod = Formatter::toMethodFormat($method);
         $formatAddress = Formatter::toAddressFormat($this->contractAddress);
         $params['data'] = "0x{$formatMethod}{$formatAddress}";
-        $result = $this->proxyApi->send('eth_call', [$params,"latest"]);
+        $result = $this->proxyApi->ethCall($params);
         $decimals = intval(Utils::toBn($result)->toString() ?? null);
         if (!is_int($decimals)) {
             throw new InvalidArgumentException('Failed to retrieve ERC20 token decimals value');
@@ -76,7 +76,7 @@ class ERC20 extends Eth {
         $formatMethod = Formatter::toMethodFormat($method);
         $formatAddress = Formatter::toAddressFormat($address);
         $params['data'] = "0x{$formatMethod}{$formatAddress}";
-        $balance = $this->proxyApi->send('eth_call', [$params,"latest"]);
+        $balance = $this->proxyApi->ethCall($params);
         return Utils::toDisplayAmount($balance, $decimals);
     }
 

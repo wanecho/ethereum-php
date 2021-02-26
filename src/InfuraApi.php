@@ -18,9 +18,7 @@ class InfuraApi implements ProxyApi {
     public function send($method, $params = [])
     {
         $url = "https://mainnet.infura.io/v3/{$this->apiKey}";
-
         $strParams = is_array($params)?json_encode($params):'"'.$params.'"';
- 
         $data_string = '{"jsonrpc":"2.0","method":"'.$method.'","params": '.$strParams.',"id":1}';
         $res = Utils::httpRequest('POST', $url, [
             'body' => $data_string
@@ -87,4 +85,10 @@ class InfuraApi implements ProxyApi {
     {
         return $this->network;
     }
+
+    function ethCall($params)
+    {
+        return $this->send('eth_call',[$params,"latest"]);
+    }
+
 }

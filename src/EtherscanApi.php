@@ -20,19 +20,18 @@ class EtherscanApi implements ProxyApi {
             'module' => 'proxy',
             'tag' => 'latest',
         ];
-
         foreach ($defaultParams as $key => $val) {
             if (!isset($params[$key])) {
                 $params[$key] = $val;
             }
         }
 
-        $preApi = 'api-cn';
+        $preApi = 'api';
         if ($this->network != 'mainnet') {
             $preApi .= '-' . $this->network;
         }
 
-        $url = "https://$preApi.etherscan.com/api?action={$method}&apikey={$this->apiKey}";
+        $url = "https://$preApi.etherscan.io/api?action={$method}&apikey={$this->apiKey}";
         if ($params && count($params) > 0) {
             $strParams = http_build_query($params);
             $url .= "&{$strParams}";
@@ -101,4 +100,11 @@ class EtherscanApi implements ProxyApi {
     {
         return $this->network;
     }
+
+    function ethCall($params): string
+    {
+        return  $this->send('eth_call',$params);
+        
+    }
+
 }
