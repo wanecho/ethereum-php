@@ -27,23 +27,21 @@ class EtherscanApi implements ProxyApi {
             }
         }
 
-        $preApi = 'api';
+        $preApi = 'api-cn';
         if ($this->network != 'mainnet') {
             $preApi .= '-' . $this->network;
         }
 
-        $url = "https://$preApi.etherscan.io/api?action={$method}&apikey={$this->apiKey}";
+        $url = "https://$preApi.etherscan.com/api?action={$method}&apikey={$this->apiKey}";
         if ($params && count($params) > 0) {
             $strParams = http_build_query($params);
             $url .= "&{$strParams}";
         }
-
         $res = Utils::httpRequest('GET', $url);
         if (isset($res['result'])) {
             return $res['result'];
         } else {
-            var_dump($res);
-            return false;
+            return $res;
         }
     }
 

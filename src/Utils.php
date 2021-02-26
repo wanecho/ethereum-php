@@ -92,7 +92,7 @@ class Utils
             $hex = preg_replace('/^0+(?!$)/', '', $hex);
         } elseif (is_string($value)) {
             $value = self::stripZero($value);
-            $hex = implode('', unpack('H*', $value));
+            $hex = implode('',unpack('H*', $value));
         } elseif ($value instanceof BigInteger) {
             $hex = $value->toHex(true);
             $hex = preg_replace('/^0+(?!$)/', '', $hex);
@@ -493,7 +493,7 @@ class Utils
      * @throws GuzzleException
      */
     public static function httpRequest(string $method, string $url, array $options = []) {
-        $client = new Client([ 'timeout'  => 30 ]);
+        $client = new Client([ 'timeout'  => 30 ,'verify' => false]);
         $res = $client->request($method, $url, $options)->getBody();
         $res = json_decode((string)$res, true);
         return $res;

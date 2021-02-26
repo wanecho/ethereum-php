@@ -8,6 +8,7 @@ namespace Ethereum;
 
 use InvalidArgumentException;
 use Web3p\EthereumTx\Transaction;
+use Ethereum\Utils;
 
 class ERC20 extends Eth {
 
@@ -19,25 +20,52 @@ class ERC20 extends Eth {
         $this->contractAddress = $contractAddress;
     }
 
-    public function balanceByApi(string $address, int $decimals)
+    
+    public function name():string
     {
-        if ($this->proxyApi instanceof EtherscanApi) {
-            $res = $this->proxyApi->send('tokenbalance', [
-                'module' => 'account',
-                'contractaddress' => $this->contractAddress,
-                'address' => $address
-            ]);
-
-            if ($res !== false) {
-                return Utils::toDisplayAmount($res, $decimals);
-            } else {
-                return false;
-            }
-        } else {
-            throw new InvalidArgumentException('type invalid');
+        $params['to'] = $this->contractAddress;
+        $method = "name()";
+        $formatMethod = Formatter::toMethodFormat($method);
+        $formatAddress = Formatter::toAddressFormat($this->contractAddress);
+        $params['data'] = "0x{$formatMethod}{$formatAddress}";
+        $result = $this->proxyApi->send('eth_call', [$params,"latest"]);
+        $name =  trim(Utils::hexToBin($result));
+        if (!is_string($name)) {
+            throw new InvalidArgumentException('Failed to retrieve ERC20 token name');
         }
-
+        return $name;
     }
+
+    public function symbol(): string
+    {
+        $params['to'] = $this->contractAddress;
+        $method = 'symbol()';
+        $formatMethod = Formatter::toMethodFormat($method);
+        $formatAddress = Formatter::toAddressFormat($this->contractAddress);
+        $params['data'] = "0x{$formatMethod}{$formatAddress}";
+        $result = $this->proxyApi->send('eth_call', [$params,"latest"]);
+        $symbol = trim(Utils::hexToBin($result)) ?? null;
+        if (!is_string($symbol)) {
+            throw new InvalidArgumentException('Failed to retrieve ERC20 token symbol');
+        }
+        return $symbol;
+    }
+
+    public function decimals()
+    {
+        $params['to'] = $this->contractAddress;
+        $method = 'decimals()';
+        $formatMethod = Formatter::toMethodFormat($method);
+        $formatAddress = Formatter::toAddressFormat($this->contractAddress);
+        $params['data'] = "0x{$formatMethod}{$formatAddress}";
+        $result = $this->proxyApi->send('eth_call', [$params,"latest"]);
+        $decimals = intval(Utils::toBn($result)->toString() ?? null);
+        if (!is_int($decimals)) {
+            throw new InvalidArgumentException('Failed to retrieve ERC20 token decimals value');
+        }
+        return $decimals;
+    }
+
 
     public function balance(string $address, int $decimals = 16)
     {
@@ -47,9 +75,7 @@ class ERC20 extends Eth {
         $method = 'balanceOf(address)';
         $formatMethod = Formatter::toMethodFormat($method);
         $formatAddress = Formatter::toAddressFormat($address);
-
         $params['data'] = "0x{$formatMethod}{$formatAddress}";
-
         $balance = $this->proxyApi->send('eth_call', [$params,"latest"]);
         return Utils::toDisplayAmount($balance, $decimals);
     }
@@ -58,14 +84,13 @@ class ERC20 extends Eth {
     {
         $from = PEMHelper::privateKeyToAddress($privateKey);
         $nonce = $this->proxyApi->getNonce($from);
-        //dd($this->proxyApi->gasPrice());
-        // if (!Utils::isHex($gasPrice)) {
-        //     echo $gasPrice = Utils::toHex(self::gasPriceOracle($gasPrice), true);
-        // }
-        $gasPrice = $this->proxyApi->gasPrice();
-        echo Utils::toDisplayAmount(hexdec($gasPrice),18);
-        echo Utils::toDisplayAmount(hexdec($gasPrice),18)*hexdec(0xea60);
-
+        if (!Utils::isHex($gasPrice)) {
+            $gasPrice = Utils::toHex(self::gasPriceOracle($gasPrice), true);
+            if( $gasPrice === false ){
+                $gasPrice = $this->proxyApi->gasPrice();
+            }
+        }
+        
         $params = [
             'nonce' => "$nonce",
             'from' => $from,

@@ -28,16 +28,19 @@ class Eth {
         return call_user_func_array([$this->proxyApi, $name], $arguments);
     }
 
-    public static function gasPriceOracle($type = 'standard')
+    /**
+     *  type:Safe,Propose,Fast
+     */
+    public static function gasPriceOracle($type = 'Safe')
     {
-        $url = 'https://www.etherchain.org/api/gasPriceOracle';
+        $url = 'https://api-cn.etherscan.com/api?module=gastracker&action=gasoracle&apikey=B8IMPU8HAU65HHZDS22X9BYN6IQBHCK961';
         $res = Utils::httpRequest('GET', $url);
-        if ($type && isset($res[$type])) {
-            $price = $res[$type];
-            $price = Utils::toWei($price, 'gwei');
-            return $price;
+        $type = $type."GasPrice";
+        if (isset($res['result'][$type])) {
+            $price = Utils::toWei($res['result'][$type], 'gwei');
+            return Utils::toHex($price,true);
         } else {
-            return $res;
+            return false;
         }
     }
 
@@ -66,10 +69,11 @@ class Eth {
         $nonce = $this->proxyApi->getNonce($from);
         if (!Utils::isHex($gasPrice)) {
             $gasPrice = Utils::toHex(self::gasPriceOracle($gasPrice), true);
+            if( $gasPrice === false ){
+                $gasPrice = $this->proxyApi->gasPrice();
+            }
         }
-        
         $eth = Utils::toWei("$value", 'ether');
-//        $eth = $value * 1e16;
         $eth = Utils::toHex($eth, true);
 
         $transaction = new Transaction([
