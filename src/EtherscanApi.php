@@ -104,7 +104,6 @@ class EtherscanApi implements ProxyApi {
     function ethCall($params): string
     {
         return  $this->send('eth_call',$params);
-        
     }
 
 }
