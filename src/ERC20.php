@@ -85,7 +85,7 @@ class ERC20 extends Eth {
         $from = PEMHelper::privateKeyToAddress($privateKey);
         $nonce = $this->proxyApi->getNonce($from);
         if (!Utils::isHex($gasPrice)) {
-            $gasPrice = Utils::toHex(self::gasPriceOracle($gasPrice), true);
+            $gasPrice = self::gasPriceOracle($gasPrice);
             if( $gasPrice === false ){
                 $gasPrice = $this->proxyApi->gasPrice();
             }
