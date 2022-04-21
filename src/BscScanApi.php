@@ -6,7 +6,7 @@
 
 namespace Ethereum;
 
-class HecoScanApi implements ProxyApi {
+class BscScanApi implements ProxyApi {
     protected $apiKey;
     protected $network;
 
