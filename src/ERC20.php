@@ -13,11 +13,15 @@ use Ethereum\Utils;
 class ERC20 extends Eth {
 
     protected $contractAddress;
+    protected $symbol;
+    protected $decimals;
 
     function __construct(string $contractAddress, ProxyApi $proxyApi) {
         parent::__construct($proxyApi);
-
         $this->contractAddress = $contractAddress;
+        $this->symbol = $this->symbol();
+        $this->decimals = $this->decimals();
+
     }
 
     
@@ -67,7 +71,7 @@ class ERC20 extends Eth {
     }
 
 
-    public function balance(string $address, int $decimals = 16)
+    public function balance(string $address)
     {
         $params = [];
         $params['to'] = $this->contractAddress;
@@ -77,15 +81,15 @@ class ERC20 extends Eth {
         $formatAddress = Formatter::toAddressFormat($address);
         $params['data'] = "0x{$formatMethod}{$formatAddress}";
         $balance = $this->proxyApi->ethCall($params);
-        return Utils::toDisplayAmount($balance, $decimals);
+        return Utils::toDisplayAmount($balance, $this->decimals);
     }
 
-    public function transfer(string $privateKey, string $to, float $value, string $gasPrice = 'standard',int $decimals=8)
+    public function transfer(string $privateKey, string $to, float $value, string $gasPrice = 'Safe')
     {
         $from = PEMHelper::privateKeyToAddress($privateKey);
         $nonce = $this->proxyApi->getNonce($from);
         if (!Utils::isHex($gasPrice)) {
-            $gasPrice = self::gasPriceOracle($gasPrice);
+            $gasPrice = $this->proxyApi->gasPriceOracle($gasPrice);
             if( $gasPrice === false ){
                 $gasPrice = $this->proxyApi->gasPrice();
             }
@@ -98,9 +102,9 @@ class ERC20 extends Eth {
             'gas' => '0xea60',
             'gasPrice' => "$gasPrice",
             'value' => Utils::NONE,
-            'chainId' => self::getChainId($this->proxyApi->getNetwork()),
+            'chainId' => $this->proxyApi->getChainId(),
         ];
-        $val = Utils::toMinUnitByDecimals("$value",$decimals);
+        $val = Utils::toMinUnitByDecimals("$value",$this->decimals);
 
         $method = 'transfer(address,uint256)';
         $formatMethod = Formatter::toMethodFormat($method);
@@ -112,9 +116,9 @@ class ERC20 extends Eth {
 
         $raw = $transaction->sign($privateKey);
         $res = $this->proxyApi->sendRawTransaction('0x'.$raw);
-        if ($res !== false) {
-            $this->emit(new TransactionEvent($transaction, $privateKey, $res));
-        }
+        // if ($res !== false) {
+        //     $this->emit(new TransactionEvent($transaction, $privateKey, $res));
+        // }
 
         return $res;
     }

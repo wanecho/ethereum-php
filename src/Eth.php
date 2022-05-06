@@ -28,21 +28,7 @@ class Eth {
         return call_user_func_array([$this->proxyApi, $name], $arguments);
     }
 
-    /**
-     *  type:Safe,Propose,Fast
-     */
-    public static function gasPriceOracle($type = 'Safe')
-    {
-        $url = 'https://api-cn.etherscan.com/api?module=gastracker&action=gasoracle&apikey=B8IMPU8HAU65HHZDS22X9BYN6IQBHCK961';
-        $res = Utils::httpRequest('GET', $url);
-        $type = $type."GasPrice";
-        if (isset($res['result'][$type])) {
-            $price = Utils::toWei($res['result'][$type], 'gwei');
-            return Utils::toHex($price,true);
-        } else {
-            return false;
-        }
-    }
+   
 
     public static function getChainId($network) : int {
         $chainId = 1;
@@ -63,19 +49,19 @@ class Eth {
         return $chainId;
     }
 
-    public function transfer(string $privateKey, string $to, float $value, string $gasPrice = 'standard')
+    public function transfer(string $privateKey, string $to, float $value, string $gasPrice = 'Safe')
     {
         $from = PEMHelper::privateKeyToAddress($privateKey);
         $nonce = $this->proxyApi->getNonce($from);
         if (!Utils::isHex($gasPrice)) {
-            $gasPrice = self::gasPriceOracle($gasPrice);
+            $gasPrice = $this->proxyApi->gasPriceOracle($gasPrice);
             if( $gasPrice === false ){
                 $gasPrice = $this->proxyApi->gasPrice();
             }
         }
         $eth = Utils::toWei("$value", 'ether');
         $eth = Utils::toHex($eth, true);
-
+        
         $transaction = new Transaction([
             'nonce' => "$nonce",
             'from' => $from,
@@ -83,13 +69,15 @@ class Eth {
             'gas' => '0x76c0',
             'gasPrice' => "$gasPrice",
             'value' => "$eth",
-            'chainId' => self::getChainId($this->proxyApi->getNetwork()),
+            'chainId' => $this->proxyApi->getChainId(),
         ]);
         $raw = $transaction->sign($privateKey);
+        
         $res = $this->proxyApi->sendRawTransaction('0x'.$raw);
-        if ($res !== false) {
-            $this->emit(new TransactionEvent($transaction, $privateKey, $res));
-        }
+        // print_r($res);
+        // if ($res !== false) {
+        //     $this->emit(new TransactionEvent($transaction, $privateKey, $res));
+        // }
 
         return $res;
     }

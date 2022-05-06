@@ -24,4 +24,9 @@ interface ProxyApi {
     function getNonce(string $address);
 
     function ethCall($params);
+
+    function gasPriceOracle(string $type);
+
+    function getChainId(): int;
+
 }

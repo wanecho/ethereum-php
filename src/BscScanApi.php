@@ -15,6 +15,11 @@ class BscScanApi implements ProxyApi {
         $this->network = $network;
     }
 
+    public  function getChainId() : int {
+        $chainId = 56 ;
+        return $chainId;
+    }
+
     public function send($method, $params = [])
     {
         $defaultParams = [
@@ -43,6 +48,22 @@ class BscScanApi implements ProxyApi {
         } else {
             return $res;
         }
+    }
+
+    /**
+     *  type:Safe,Propose,Fast
+     */
+    public function gasPriceOracle($type="Safe"){
+
+        $res = $this->send('gasoracle', ['module' => 'gastracker']);
+        $type = $type."GasPrice";
+        if (isset($res[$type])) {
+            $price = Utils::toWei($res[$type], 'gwei');
+            return Utils::toHex($price,true);
+        } else {
+            return false;
+        }
+
     }
 
     public function gasPrice()

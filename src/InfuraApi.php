@@ -91,4 +91,20 @@ class InfuraApi implements ProxyApi {
         return $this->send('eth_call',[$params,"latest"]);
     }
 
+    /**
+     *  type:Safe,Propose,Fast
+     */
+    public function gasPriceOracle($type="Safe"){
+
+        $res = $this->send('gasoracle', ['module' => 'gastracker']);
+        $type = $type."GasPrice";
+        if (isset($res['result'][$type])) {
+            $price = Utils::toWei($res['result'][$type], 'gwei');
+            return Utils::toHex($price,true);
+        } else {
+            return false;
+        }
+
+    }
+
 }
