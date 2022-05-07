@@ -31,6 +31,12 @@ class InfuraApi implements ProxyApi {
         
     }
 
+
+    public  function getChainId() : int {
+        $chainId = 1 ;
+        return $chainId;
+    }
+    
     function gasPrice()
     {
         return $this->send('eth_gasPrice');
